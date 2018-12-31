@@ -62,9 +62,40 @@ var stream = mp4.decode()
 
 stream.on('box', function (headers) {
   console.log('found new box:', headers)
+  stream.decode(function (box) {
+    console.log('Box contents:', JSON.stringify(box, null, 2))
+  })
 })
 
 fs.createReadStream('my-video.mp4').pipe(stream)
+```
+
+#### `stream.decode(callback)`
+
+Note that the callback you provide to stream.decode() can optionally return a Promise that is resolved when the work of the callback is complete. This is useful if you need to perform asynchronous work in the callback. You can either return a Promise of, if you're using async/await, you can just mark your callback function as async:
+
+``` js
+stream.decode(function (box) {
+  return new Promise((function resolve) {
+    // Do async work...
+    resolve()
+  })
+})
+```
+or
+
+``` js
+stream.decode(async function (box) {
+  // Do async work...
+})
+```
+
+If your callback is not asynchronous you don't need to return anything:
+
+``` js
+stream.decode(function (box) {
+  // Do sync work...
+})
 ```
 
 #### `var stream = mp4.encode()`
