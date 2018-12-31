@@ -140,9 +140,11 @@ Decoder.prototype.decode = function (cb) {
 
   self._buffer(headers.contentLen, function (buf) {
     var box = Box.decodeWithoutHeaders(headers, buf)
-    cb(box)
-    self._pending--
-    self._kick()
+    const callbackPromise = cb(box) || Promise.resolve()
+    callbackPromise.then(() => {
+      self._pending--
+      self._kick()
+    })
   })
 }
 
